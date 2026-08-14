@@ -1,0 +1,17 @@
+# Streamlit 配置
+# ============ 安全：默认仅本机访问 ============
+# 应用无登录鉴权，且知识库/对话含内部资料。绑定 127.0.0.1 禁止公网/局域网访问，
+# 防止被外部扫描到 8501 端口直接读取数据。
+# 若确需同一局域网内其他设备访问（如手机），改为 address = "0.0.0.0" 后
+# 务必自行加一层访问控制（如反向代理 + 口令），切勿裸跑。
+[server]
+address = "127.0.0.1"
+
+# ============ 主题（应用外观） ============
+[theme]
+base = "light"
+primaryColor = "#4B3FE3"
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#F7F7F8"
+textColor = "#171717"
+font = "sans serif"

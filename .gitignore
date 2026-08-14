@@ -1,0 +1,37 @@
+# ============ Python ============
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# ============ 虚拟环境 ============
+venv/
+
+# ============ 本地运行时数据（含隐私与密钥，禁止入库） ============
+config.json
+.env
+chat_sessions/
+chroma_db/
+chroma_db_old_*/
+knowledge_base/
+_kb_backup_*/
+corpus.txt
+logs/
+
+# ============ 遗留/私有数据（不随仓库分发） ============
+archive/
+eval/questions.json
+
+# ============ 内嵌二进制依赖（体积大，按需重新下载/放回 bin/） ============
+bin/
+
+# ============ IDE ============
+.idea/
+.vscode/
+
+# ============ 评测输出 ============
+eval/output*
+
+# ============ 未来 Tauri 桌面壳构建产物 ============
+desktop/node_modules/
+desktop/src-tauri/target/
