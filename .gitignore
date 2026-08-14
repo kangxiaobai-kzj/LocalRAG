@@ -35,6 +35,11 @@ eval/output*
 # ============ 未来 Tauri 桌面壳构建产物 ============
 desktop/node_modules/
 desktop/src-tauri/target/
+desktop/.npm-cache/
+desktop/.tmp/
+desktop/.appdata/
+desktop/.cache/
+desktop/*.log
 
 # ============ 便携版打包产物 ============
 build/

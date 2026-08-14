@@ -1,0 +1,14 @@
+{
+  "name": "localrag-desktop",
+  "private": true,
+  "version": "1.0.0",
+  "description": "LocalRAG 桌面壳（Tauri）：承载本地 RAG 智能体服务",
+  "scripts": {
+    "tauri": "tauri",
+    "build": "tauri build",
+    "dev": "tauri dev"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.5.0"
+  }
+}

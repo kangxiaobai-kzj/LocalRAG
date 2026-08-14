@@ -1,0 +1,22 @@
+[package]
+name = "localrag-desktop"
+version = "1.0.0"
+description = "LocalRAG 桌面壳：承载本地 RAG 智能体服务"
+authors = ["kangxiaobai-kzj"]
+edition = "2021"
+
+[lib]
+name = "localrag_desktop_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+[profile.release]
+opt-level = 2
+strip = true

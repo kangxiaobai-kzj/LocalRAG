@@ -27,9 +27,9 @@ EMBED_CACHE_SRC = Path(os.environ.get(
     "FASTEMBED_CACHE_PATH",
     os.path.join(os.environ.get("TEMP", os.getcwd()), "fastembed_cache"))) / EMBED_REPO_DIR
 
-# 源码复制时排除的顶层条目（本地运行时数据 / 构建产物 / 隐私文件）
+# 源码复制时排除的顶层条目（本地运行时数据 / 构建产物 / 隐私文件 / 桌面工程）
 EXCLUDE_TOP = {
-    "venv", ".git", "build", "dist", "bin", "models",
+    "venv", ".git", "build", "dist", "bin", "models", "desktop",
     "__pycache__", ".pytest_cache", ".idea", ".vscode",
     "chroma_db", "chroma_db_old_1", "knowledge_base", "chat_sessions",
     "logs", "archive", "corpus.txt", "config.json",
@@ -127,6 +127,16 @@ def build_bin(pkg_dir: Path) -> None:
         shutil.copytree(src, pkg_dir / "bin", dirs_exist_ok=True)
 
 
+def build_desktop(pkg_dir: Path) -> None:
+    """把 Tauri 桌面壳可执行文件复制到包根目录（双击即 WebView 承载界面）。"""
+    exe = REPO_ROOT / "desktop" / "src-tauri" / "target" / "release" / "localrag-desktop.exe"
+    if exe.exists():
+        print("📦 复制桌面壳（LocalRAG.exe）...")
+        shutil.copy2(exe, pkg_dir / "LocalRAG.exe")
+    else:
+        print("⚠️ 未找到桌面壳 exe，跳过桌面集成（可用 start_agent.bat / LocalRAG.bat 启动）。")
+
+
 def build_models(pkg_dir: Path) -> None:
     """复制 Embedding 模型缓存；重排模型体积大，不在主包内（首次运行引导下载）。"""
     if EMBED_CACHE_SRC.is_dir():
@@ -152,7 +162,7 @@ def gen_launchers(pkg_dir: Path) -> None:
 def make_zip(pkg_name: str, pkg_dir: Path, version: str) -> Path:
     out_dir = REPO_ROOT / "dist"
     out_dir.mkdir(parents=True, exist_ok=True)
-    zip_path = out_dir / f"LocalRAG-v{version}-portable-win64.zip"
+    zip_path = out_dir / f"LocalRAG-v{version}-portable-desktop-win64.zip"
     if zip_path.exists():
         zip_path.unlink()
     print(f"📦 压缩中（体积较大，请稍候）：{zip_path.name} ...")
@@ -191,6 +201,7 @@ def main() -> int:
     build_source(pkg_dir)
     build_bin(pkg_dir)
     build_models(pkg_dir)
+    build_desktop(pkg_dir)
     gen_launchers(pkg_dir)
 
     if args.no_zip:
@@ -201,106 +212,33 @@ def main() -> int:
 
 
 PORTABLE_LAUNCHER = r"""@echo off
-chcp 65001 > nul
-setlocal enabledelayedexpansion
-title LocalRAG · 可定制本地 RAG 智能体（便携版）
-
-:: 1. 切换到脚本所在目录
 cd /d "%~dp0"
-
-:: 2. 使用包内自带的 Python（无需安装 Python）
-set PYTHON=%~dp0runtime\python\python.exe
-if not exist "%PYTHON%" (
-    echo ❌ 未找到包内 Python，请确认文件完整（缺少 runtime 目录）。
-    pause
-    exit /b 1
-)
-
-:: 3. 模型缓存指向包内 models/（随包走，不占用系统目录）
-set FASTEMBED_CACHE_PATH=%~dp0models\fastembed
-set HF_HOME=%~dp0models\hf
-
-echo ==========================================
-echo   🚀 LocalRAG 一键启动（便携版）
-echo ==========================================
-echo.
-
-:: 4. 检查模型缓存（Embedding 缺失时检索不可用）
-echo 🔍 检查模型缓存...
-"%PYTHON%" scripts\check_models.py
-if errorlevel 1 (
-    echo.
-    echo ⚠️ 模型缓存不完整。
-    echo    方案 A：运行 install_models.bat 联网下载（约 2.3GB，仅首次需要）
-    echo    方案 B：跳过，聊天功能可用，检索功能后续再安装
-    echo.
-    set /p DOWNLOAD_CHOICE=是否现在下载模型？(Y/N)：
-    if /i "!DOWNLOAD_CHOICE!"=="Y" (
-        call install_models.bat
-        if errorlevel 1 (
-            echo ❌ 模型下载失败，请检查网络后重试。
-            pause
-            exit /b 1
-        )
-    ) else (
-        echo 已跳过模型下载。
-    )
-)
-
-:: 5. 检查 8501 端口占用
-netstat -ano | findstr ":8501" | findstr "LISTENING" >nul 2>&1
-if not errorlevel 1 (
-    echo.
-    echo ⚠️ 端口 8501 已被占用，可能已有 LocalRAG 在运行。
-    set /p CONTINUE_ANYWAY=仍然继续启动？(Y/N)：
-    if /i not "!CONTINUE_ANYWAY!"=="Y" (
-        echo 已取消启动。
-        pause
-        exit /b 0
-    )
-)
-
-:: 6. 启动（仅本机可访问）
-echo.
-echo ==========================================
-echo   🌐 正在启动 LocalRAG Web 界面...
-echo   浏览器即将自动打开：http://127.0.0.1:8501
-echo   ⏹️  关闭本窗口即可停止服务
-echo ==========================================
-start "" /b powershell -WindowStyle Hidden -Command "Start-Sleep -Seconds 5; Start-Process 'http://127.0.0.1:8501'"
-"%PYTHON%" -m streamlit run streamlit_app.py --server.address 127.0.0.1 --server.headless true
-
-echo.
-echo ⏹️ 服务已停止。
-pause
+title LocalRAG - LocalRAG Agent (portable)
+:: 浏览器版入口：复用 start_agent.bat（自动识别 runtime / venv / 系统 Python，
+:: 便携包内置模型缓存路径与 OCR bin）。桌面版请双击 LocalRAG.exe。
+call start_agent.bat
 """
 
 PORTABLE_INSTALLER = r"""@echo off
-chcp 65001 > nul
-title LocalRAG · 模型下载工具（便携版）
 cd /d "%~dp0"
+title LocalRAG - model download tool (portable)
 
-set PYTHON=%~dp0runtime\python\python.exe
-if not exist "%PYTHON%" (
-    echo ❌ 未找到包内 Python，请确认文件完整。
-    pause
-    exit /b 1
-)
-
-set FASTEMBED_CACHE_PATH=%~dp0models\fastembed
-set HF_HOME=%~dp0models\hf
+set "PYTHON=%~dp0runtime\python\python.exe"
+if not exist "%PYTHON%" set "PYTHON=python"
+if exist "%~dp0models\fastembed" set "FASTEMBED_CACHE_PATH=%~dp0models\fastembed"
+if exist "%~dp0models\hf" set "HF_HOME=%~dp0models\hf"
 
 echo ==========================================
-echo   📥 LocalRAG 模型下载（需联网，约 2.3GB）
+echo   LocalRAG model download (~2.3GB, need network)
 echo ==========================================
 "%PYTHON%" scripts\download_models.py
 if errorlevel 1 (
-    echo ❌ 模型下载失败，请检查网络后重试。
+    echo [ERR] model download failed, check network and retry.
     pause
     exit /b 1
 )
 echo.
-echo ✅ 模型安装完成，现在可以离线使用检索功能了。
+echo [DONE] models installed, retrieval now works offline.
 pause
 """
 
@@ -308,8 +246,9 @@ PORTABLE_README = """LocalRAG · 可定制本地 RAG 智能体（便携版）
 ===================================================
 
 一、如何启动
-  1. 双击「LocalRAG.bat」即可一键启动（无需安装 Python）。
-  2. 启动后浏览器会自动打开 http://127.0.0.1:8501。
+  1. 双击「LocalRAG.exe」（桌面版）即可启动：自动拉起后台服务，
+     并以内置窗口呈现界面；关闭窗口即停止服务。
+  2. 或双击「LocalRAG.bat」在浏览器中使用（需浏览器访问 http://127.0.0.1:8501）。
   3. 关闭黑色窗口即可停止服务。
 
 二、首次使用
@@ -327,6 +266,7 @@ PORTABLE_README = """LocalRAG · 可定制本地 RAG 智能体（便携版）
   runtime/python   自带的 Python 解释器与依赖（勿删）
   models/          模型缓存（随包走）
   bin/             OCR 识别二进制（扫描版 PDF 转文字用）
+  LocalRAG.exe     Tauri 桌面壳（推荐入口）
   项目源码         在包根目录（streamlit_app.py 等）
 """
 
