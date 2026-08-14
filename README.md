@@ -15,6 +15,8 @@
 
 ---
 
+> 🔗 **项目仓库**：[https://github.com/kangxiaobai-kzj/LocalRAG](https://github.com/kangxiaobai-kzj/LocalRAG)
+
 ## 📑 目录
 
 - [🌟 项目定位与技术亮点](#-项目定位与技术亮点)
@@ -34,7 +36,7 @@
 
 ## 🌟 项目定位与技术亮点
 
-这是一套 **Agentic RAG（智能检索增强生成）** 的工程实践，覆盖「文档解析 → 切片 → 向量化 → 混合检索 → 语义重排 → Agent 工具编排 → 带溯源回答」的全链路，可作为大模型应用方向的练手项目参考：
+这是一套 **Agentic RAG（智能检索增强生成）** 的完整工程实现，覆盖「文档解析 → 切片 → 向量化 → 混合检索 → 语义重排 → Agent 工具编排 → 带溯源回答」的全链路，可作为本地私有知识库问答系统的工程参考：
 
 ### 核心概念速览
 
@@ -171,12 +173,13 @@ flowchart TD
 
 ## 🚀 快速开始
 
-### 环境要求
+> 提供两种使用方式：**项目部署式**（源码运行，适合二次开发与深度定制）与**便携式**（免安装 Python，开箱即用）。
 
-- Python 3.10+（建议 3.10/3.11）
-- Windows 10/11（DPAPI 加密、内嵌 OCR 二进制基于 Windows）
+### 方式一：项目部署式（源码运行）
 
-### 安装与启动
+**适用场景**：需要二次开发、深度定制、或本地已有 Python 环境。
+
+**环境要求**：Python 3.10+（建议 3.10/3.11）；Windows 10/11（DPAPI 加密与内嵌 OCR 二进制基于 Windows）。
 
 ```bash
 # 1. 克隆仓库
@@ -185,28 +188,35 @@ cd LocalRAG
 
 # 2. 创建虚拟环境并安装依赖
 python -m venv venv
-# Windows:
 venv\Scripts\activate
 pip install -r requirements.txt
 
 # 3. 启动
-# Windows 一键启动（首次运行自动创建 venv / 安装依赖 / 下载模型）：
-start_agent.bat
-# 或命令行：
+start_agent.bat   # 一键启动（首次运行自动建 venv / 装依赖 / 下载模型）
+# 或命令行启动：
 streamlit run streamlit_app.py
 ```
 
-> 📦 **不想装 Python？** Windows 用户可直接下载 Releases 里的**便携版**（`LocalRAG-vX.Y.Z-portable-win64.zip`，约 660MB）：解压后双击 `LocalRAG.bat` 即可运行，自带 Python 运行时与 Embedding 模型，开箱即用。
+启动后按下方「配置说明」在设置页填写模型服务商与 API Key 即可使用。
 
-> 🔐 **访问安全**：应用默认**仅本机可访问**（绑定 `127.0.0.1`，见 `.streamlit/config.toml`）。应用本身无登录鉴权且知识库含内部资料，禁止以 `0.0.0.0` 裸跑暴露到公网/局域网。确需局域网访问时，请先加一层访问控制（如反向代理 + 口令）再放开绑定。
+### 方式二：便携式（免安装 Python）
 
-> 💡 首次启动需从 HuggingFace 国内镜像下载 BGE 向量/重排模型权重（Embedding 约 90MB，重排约 2.2GB），下载后缓存本地，之后离线可用；缺少重排模型时自动降级为混合检索。
+**适用场景**：仅想直接使用、不想安装 Python 的 Windows 用户。两种形态任选其一：
+
+| 形态 | 版本 | 使用方式 | 推荐场景 |
+| :--- | :--- | :--- | :--- |
+| **桌面版** | v1.1.0 | 下载 `LocalRAG-v1.1.0-portable-desktop-win64.zip`，解压后双击 `LocalRAG.exe`，以内置窗口呈现界面，关闭窗口即停止服务 | 习惯桌面应用、需要独立窗口承载 |
+| **浏览器版** | v1.0.0 | 下载 `LocalRAG-v1.0.0-portable-win64.zip`，解压后双击 `LocalRAG.bat`，自动打开浏览器访问 | 轻量简单、无额外组件 |
+
+> 便携版自带 Python 运行时与 Embedding 模型，无需安装 Python；重排模型（约 2.2GB）不随主包分发，首次启动按提示运行 `install_models.bat` 联网下载一次，缺失时检索自动降级为混合检索。
+
+> 🔐 **访问安全**：应用默认**仅本机可访问**（绑定 `127.0.0.1`）。应用本身无登录鉴权且知识库可能含内部资料，禁止以 `0.0.0.0` 裸跑暴露到公网/局域网。确需局域网访问时，请先加一层访问控制（如反向代理 + 口令）再放开绑定。
 
 ### 第一个对话
 
-1. 打开 `http://127.0.0.1:8501`
+1. 打开 `http://127.0.0.1:8501`（桌面版会自动导航，无需手动打开）
 2. 顶部「设置」选择服务商并填写 API Key（如 DeepSeek），点击「测试连接」通过后保存
-3. 「知识库」页上传你的文档（PDF/TXT/MD/DOCX/XLSX/PPTX），点击「上传并重建知识库」
+3. 「知识库」页上传文档（PDF/TXT/MD/DOCX/XLSX/PPTX），点击「上传并重建知识库」
 4. 回到「对话」页提问，回答将带【来源：文件名】标注与溯源卡片
 
 ---
@@ -259,6 +269,7 @@ streamlit run streamlit_app.py
 ├── tests/                    # pytest 单元测试（71 用例）
 ├── utils/                    # 配置读写、加解密、统一日志
 ├── bin/                      # 内嵌 Poppler / Tesseract（免系统变量，gitignore）
+├── desktop/                  # Tauri 桌面壳工程（WebView 承载界面，可选构建）
 └── requirements.txt          # Python 依赖（全部版本锁定）
 ```
 
@@ -282,9 +293,9 @@ python eval/evaluate.py
 
 ## 🗺️ 路线图
 
-- **P6 · 本地化 / 离线闭环**：完全离线模式开关（Ollama）、模型权重离线打包与预下载脚本、一键启动脚本增强（建 venv/装依赖/校验缓存）
-- **P7 · 收尾与发布**：回归验证（各阶段基线对比）、README 架构叙事、GitHub Release 发布（便携版 zip / Tauri 桌面壳安装包）
-- **扩展方向**：多知识库隔离、多用户与权限、Tauri/Electron 桌面壳（关窗即停服务）、移动端
+- **P6 ✅ 本地化 / 离线闭环**：完全离线模式开关（Ollama）、模型权重离线打包与预下载脚本、一键启动脚本增强（建 venv/装依赖/校验缓存）
+- **P7 ✅ 桌面端与发布**：Tauri 桌面壳（WebView 承载界面、关窗即停服务）、便携版 zip（浏览器版 / 桌面版）、README 架构叙事、GitHub Release 发布
+- **扩展方向**：多知识库隔离、多用户与权限、移动端
 
 ---
 
