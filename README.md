@@ -180,8 +180,8 @@ flowchart TD
 
 ```bash
 # 1. 克隆仓库
-git clone https://github.com/<your-name>/ai-agent-rag.git
-cd ai-agent-rag
+git clone https://github.com/kangxiaobai-kzj/LocalRAG.git
+cd LocalRAG
 
 # 2. 创建虚拟环境并安装依赖
 python -m venv venv
@@ -190,15 +190,17 @@ venv\Scripts\activate
 pip install -r requirements.txt
 
 # 3. 启动
-# Windows 一键启动（自动激活环境）：
+# Windows 一键启动（首次运行自动创建 venv / 安装依赖 / 下载模型）：
 start_agent.bat
 # 或命令行：
 streamlit run streamlit_app.py
 ```
 
+> 📦 **不想装 Python？** Windows 用户可直接下载 Releases 里的**便携版**（`LocalRAG-vX.Y.Z-portable-win64.zip`，约 660MB）：解压后双击 `LocalRAG.bat` 即可运行，自带 Python 运行时与 Embedding 模型，开箱即用。
+
 > 🔐 **访问安全**：应用默认**仅本机可访问**（绑定 `127.0.0.1`，见 `.streamlit/config.toml`）。应用本身无登录鉴权且知识库含内部资料，禁止以 `0.0.0.0` 裸跑暴露到公网/局域网。确需局域网访问时，请先加一层访问控制（如反向代理 + 口令）再放开绑定。
 
-> 💡 首次启动需从 HuggingFace 国内镜像下载 BGE 向量/重排模型权重（约 1GB），下载后缓存本地，之后离线可用。
+> 💡 首次启动需从 HuggingFace 国内镜像下载 BGE 向量/重排模型权重（Embedding 约 90MB，重排约 2.2GB），下载后缓存本地，之后离线可用；缺少重排模型时自动降级为混合检索。
 
 ### 第一个对话
 

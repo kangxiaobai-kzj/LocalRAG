@@ -35,3 +35,7 @@ eval/output*
 # ============ 未来 Tauri 桌面壳构建产物 ============
 desktop/node_modules/
 desktop/src-tauri/target/
+
+# ============ 便携版打包产物 ============
+build/
+dist/
