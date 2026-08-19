@@ -1,7 +1,7 @@
 <h1 align="center">🧭 LocalRAG · 可定制本地 RAG 智能体</h1>
 
 <div align="center">
-  <p><em>本地优先的私有知识库问答系统 · 检索可溯源、数据不出本地</em></p>
+  <p><em>本地优先的私有知识库辅助系统 · 检索可溯源、数据不出本地</em></p>
   <p>
     <img src="https://img.shields.io/badge/Python-3.10+-blue.svg" alt="Python">
     <img src="https://img.shields.io/badge/UI-Streamlit-FF4B4B.svg" alt="Streamlit">
@@ -36,7 +36,7 @@
 
 ## 🌟 项目定位与技术亮点
 
-这是一套 **Agentic RAG（智能检索增强生成）** 的完整工程实现，覆盖「文档解析 → 切片 → 向量化 → 混合检索 → 语义重排 → Agent 工具编排 → 带溯源回答」的全链路，可作为本地私有知识库问答系统的工程参考：
+这是一套 **Agentic RAG（智能检索增强生成）** 的完整工程实现，覆盖「文档解析 → 切片 → 向量化 → 混合检索 → 语义重排 → Agent 工具编排 → 带溯源回答」的全链路，可作为本地私有知识库辅助系统的工程参考：
 
 ### 核心概念速览
 
